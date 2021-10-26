@@ -1,0 +1,63 @@
+---
+title: "Sea Urchins"
+author: "Devon Rossi"
+date: "10/25/2021"
+output: html_document
+---
+#Overview
+In this task, you will use version control, project management, and data wrangling, analysis & visualization skills to explore red and purple urchins recorded by Santa Barbara Coastal Long Term Ecological Research program divers, while practicing version control and project management.
+
+Data: Reed, D. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b. 
+
+#Setup
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Attacy library here, tidyverse, and janitor packages
+library(here)
+library(tidyverse)
+library(janitor)
+
+
+```
+
+#Read in the data
+```{r}
+#Read in the sea urchins data
+urchins <- read_csv(here("data", "urchins.csv"))
+#Title data, read_csv, here function to call in data and specific dataset
+```
+
+#Section 1: Size comparisons, purple and red urchins 
+
+# Data Visualization: compare the distribution of sizes between purple and red urchins with a finalized, faceted histogram. You will probably want to reduce the number of bins (default is 30...we recommend closer to 10 here). Finalize your graphs and add a figure caption.
+
+```{r}
+
+
+
+
+
+```
+
+# Descriptive statistics table: Create a finalized summary table that contains the following statistics for purple and red urchins (still ignoring site as a variable, but including species as a grouping variable): mean, median, standard deviation, and sample size. Use kableExtra (or another package for tables in R) to finalize your table for your knitted document. Add a table caption above your table
+```{r}
+
+
+
+```
+
+#Section 2. Explore purple urchin counts by site and year
+```{r}
+
+
+
+```
+
+
+```{r}
+
+
+
+```
+
