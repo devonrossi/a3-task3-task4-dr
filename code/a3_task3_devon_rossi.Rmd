@@ -10,14 +10,14 @@ In this task, you will use version control, project management, and data wrangli
 Data: Reed, D. 2020. SBC LTER: Reef: Long-term experiment: Kelp removal: Urchin size frequency distribution ver 20. Environmental Data Initiative. https://doi.org/10.6073/pasta/5a1e9ef03aa47bd2225c0bb98a02a63b. 
 
 #Setup
-```{r setup, include = FALSE}
+```{r setup, include = TRUE, warning = FALSE, message = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
 #Attacy library here, tidyverse, and janitor packages
 library(here)
 library(tidyverse)
 library(janitor)
-
+library(kableExtra) #attach kableExtra
 
 ```
 
@@ -25,39 +25,77 @@ library(janitor)
 ```{r}
 #Read in the sea urchins data
 urchins <- read_csv(here("data", "urchins.csv"))
-#Title data, read_csv, here function to call in data and specific dataset
+#Title data, read_csv, here function to call in data and specific data set
 ```
-
-#Section 1: Size comparisons, purple and red urchins 
-
-# Data Visualization: compare the distribution of sizes between purple and red urchins with a finalized, faceted histogram. You will probably want to reduce the number of bins (default is 30...we recommend closer to 10 here). Finalize your graphs and add a figure caption.
-
+#Clean up names to lower_snakecase
 ```{r}
-
-
-
-
-
+sb_urchins <- urchins %>% #clean dataset using clean_names()
+  clean_names()
 ```
 
-# Descriptive statistics table: Create a finalized summary table that contains the following statistics for purple and red urchins (still ignoring site as a variable, but including species as a grouping variable): mean, median, standard deviation, and sample size. Use kableExtra (or another package for tables in R) to finalize your table for your knitted document. Add a table caption above your table
+
+##Section 1: Size comparisons, purple and red urchins 
+
+# Data Visualization
 ```{r}
+#compare the distribution of sizes between purple and red urchins with a finalized, faceted histogram 
 
-
-
+ggplot(data = sb_urchins, aes(x = size)) + 
+  geom_histogram(aes(fill = common_name, bins = 12)) + #bins = 12
+  facet_wrap(~ common_name) + #facet_wrap: adds 1d sequence of panels into 2d
+  labs (x = "Size (cm)", #units are centimeters
+        y = "Sea Urchin Species", 
+        title = "Size Comparison: Purple and Red Urchin Sizes") +
+  theme()
 ```
 
-#Section 2. Explore purple urchin counts by site and year
+# Descriptive statistics table
 ```{r}
+sb_urchins_stats <- sb_urchins %>% #title your summary table; pull from data set
+  group_by(common_name) %>%  #group by to find stats for purple and red urchins
+  summarize(mean_size = mean(size), 
+            median_size = median(size),
+            sd_size = round(sd(size), 1),
+            sample_size = n())
+sb_urchins_stats #to access summary table
 
+#Use kableExtra (or another package for tables in R) to finalize your table for your knitted document. Add a table caption above your table.
+
+sb_urchins_stats %>% 
+  kbl(caption = "SB Urchins Statistics: Mean, Median, SD, Sample Size") %>% #add table caption
+  kable_styling(full_width = F, html_font = "Cambria") #use styling to adjust width and font
 
 
 ```
+Some things to consider:
+Are the values a reasonable number of significant figures?
+Have you updated column names to be finalized (with units?)
 
 
+Below where your graph and table appear, add 2 - 3 sentences briefly describing your overall takeaways about how the size (distribution, central tendency, spread, etc.) compare between the two species of urchins (again, here we are ignoring site and treatment as a variable). Help to contextualize any differences you observe - for example, what is the actual and % difference in mean urchin diameter between the species? 
+
+% Diff
+Red: 4mm
+Purple: 5mm
+
+Absolute diff: 1mm
+
+1mm/4mm = 25%
+Red is 20% smaller than purple
+
+   
+#Section 2: Explore purple urchin counts by site and year
 ```{r}
-
-
+purple_urchins <- sb_urchins %>% 
+  filter(common_name == "Purple Urchin") %>%
+  mutate(date_new = mdy(date)) %>% #tell R it is a class
+  mutate(year = year(date_new)) %>% 
+  mutate(site_full = case_when(site == "NAPL" ~ "Naples Reef",
+                               site == "AQUE" ~ "Arroyo Quemado Reef",
+                               site == "CARP" ~ "Carpinteria Reef",
+                               site == "MOHK" ~ "Mohawk Reef",
+                               site == "IVEE" ~ "Isla Vista Reef"))
 
 ```
+
 
