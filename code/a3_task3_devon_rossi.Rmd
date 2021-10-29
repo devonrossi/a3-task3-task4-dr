@@ -18,6 +18,7 @@ library(here)
 library(tidyverse)
 library(janitor)
 library(kableExtra) #attach kableExtra
+library(lubridate) #attach lubridate to edit dates
 
 ```
 
@@ -37,11 +38,11 @@ sb_urchins <- urchins %>% #clean dataset using clean_names()
 ##Section 1: Size comparisons, purple and red urchins 
 
 # Data Visualization
-```{r}
+```{r, fig.cap = "Figure 1: Purple and Red Urchin: Distribution of Sizes"}
 #compare the distribution of sizes between purple and red urchins with a finalized, faceted histogram 
 
 ggplot(data = sb_urchins, aes(x = size)) + 
-  geom_histogram(aes(fill = common_name, bins = 12)) + #bins = 12
+  geom_histogram(aes(fill = common_name, bins = 14)) + #bins = 12
   facet_wrap(~ common_name) + #facet_wrap: adds 1d sequence of panels into 2d
   labs (x = "Size (cm)", #units are centimeters
         y = "Sea Urchin Species", 
@@ -52,36 +53,26 @@ ggplot(data = sb_urchins, aes(x = size)) +
 # Descriptive statistics table
 ```{r}
 sb_urchins_stats <- sb_urchins %>% #title your summary table; pull from data set
-  group_by(common_name) %>%  #group by to find stats for purple and red urchins
-  summarize(mean_size = mean(size), 
-            median_size = median(size),
-            sd_size = round(sd(size), 1),
+  group_by(common_name) %>%  #group by to find stats for purple and red urchins (round)
+  summarize(mean_size = round(mean(size), 2), 
+            median_size = round(median(size), 2),
+            sd_size = round(sd(size), 2),
             sample_size = n())
-sb_urchins_stats #to access summary table
+sb_urchins_stats #View summary table
 
-#Use kableExtra (or another package for tables in R) to finalize your table for your knitted document. Add a table caption above your table.
-
+#Update column names
 sb_urchins_stats %>% 
-  kbl(caption = "SB Urchins Statistics: Mean, Median, SD, Sample Size") %>% #add table caption
-  kable_styling(full_width = F, html_font = "Cambria") #use styling to adjust width and font
-
+  kable(col.names = c("Species",
+        "Mean Size (cm)",
+        "Median Size (cm)",
+        "SD Size (cm)",
+        "Sample Size (cm)"),
+        caption = "Table 1: SB Urchins Statistics: Mean, Median, SD, Sample Size" )
 
 ```
-Some things to consider:
-Are the values a reasonable number of significant figures?
-Have you updated column names to be finalized (with units?)
 
-
-Below where your graph and table appear, add 2 - 3 sentences briefly describing your overall takeaways about how the size (distribution, central tendency, spread, etc.) compare between the two species of urchins (again, here we are ignoring site and treatment as a variable). Help to contextualize any differences you observe - for example, what is the actual and % difference in mean urchin diameter between the species? 
-
-% Diff
-Red: 4mm
-Purple: 5mm
-
-Absolute diff: 1mm
-
-1mm/4mm = 25%
-Red is 20% smaller than purple
+#Table 1 Description
+From Table 1, I observed red urchin population had a larger distribution in size than the purple urchin population. The SD is greater for red urchin population versus purple urchin population (1.89cm compared to 1.18cm). Red urchin mean size is 6.78cm compared to purple urchin mean size of 4.47cm, meaning it is 2.31cm greater. We can assume our sample populations were collected from sample sizes with different means. 
 
    
 #Section 2: Explore purple urchin counts by site and year
@@ -98,4 +89,31 @@ purple_urchins <- sb_urchins %>%
 
 ```
 
+# Store Table: Total # of Purple Urchins Observed by Site & Year
+```{r}
+# Store table containing total # of purple urchins observed by site and year
+purple_urchins_site_year <- purple_urchins %>% 
+  group_by(site_full, year) %>% 
+  summarize(count = n())
 
+purple_urchins_site_year
+
+```
+
+# Data Visualization
+```{r, fig.cap = "Figure 2: Purple urchin counts recorded at each site from 2008-2020"}
+#Graph of counts of purple urchins recorded at each site over time for years included in study + figure caption
+ggplot(data = purple_urchins_site_year,
+       aes(x = year,
+           y = count,
+           color = site_full)) +
+  geom_line() +
+  labs(x = "Year",
+       y = "Sample Count",
+       title = "Purple Urchins: Site and Year") +
+  scale_color_discrete(name = "Site") +
+  theme() +
+  scale_x_continuous(breaks = 2008:2020)
+```
+#Description of Graph:
+This line graph illustrates the changes in purple urchin sample sizes throughout 5 locations in SB from 2008-2020. In order to understand if the changes in counts by year are reflective of actual changes in urchin population, we would need to calculate the summary statistics to understand if it falls within a normal distribution. By performing a t-test, we would be able to visualize whether the differences between sample means indicate actual changes within the purple urchin population.
